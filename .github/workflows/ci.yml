@@ -25,14 +25,17 @@ jobs:
           python-version: "3.11"
 
       - name: Install Poetry
-        uses: python-poetry/actions-poetry@v3
-        with:
-          install-command: "poetry install --no-root"
-          
+        run: |
+          pip install poetry==${{ env.POETRY_VERSION }}
+          poetry --version
+        env:
+          POETRY_VERSION: 2.1.3
 
       - name: Install dependencies
         run: |
-        
+          cd learn_kube
+          poetry install --no-root
+          
 
       - name: Lint and Test (Placeholder)
         run: |
