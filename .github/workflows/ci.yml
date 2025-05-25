@@ -25,7 +25,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Poetry
-        uses: python-poetry/actions-poetry@v2
+        uses: python-poetry/actions-poetry@v3
         with:
           install-command: "poetry install --no-root"
           
