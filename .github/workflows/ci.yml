@@ -16,28 +16,7 @@ permissions:
   packages: write
 
 jobs:
-  # Skip job if commit message contains "Update Kubernetes manifest"
-  check_skip:
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - name: Check if should skip
-        id: skip_check
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const message = context.payload.head_commit?.message || '';
-            const shouldSkip = message.includes('Update Kubernetes manifest');
-            console.log(`Commit message: "${message}"`);
-            console.log(`Should skip: ${shouldSkip}`);
-            return shouldSkip;
-          result-encoding: string
-
   build:
-    needs: check_skip
-    # Skip if the previous job determined we should skip
-    if: ${{ needs.check_skip.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.build-image.outputs.image-tag }}
@@ -62,7 +41,6 @@ jobs:
         run: |
           poetry install --no-root
           
-
       - name: Lint and Test (Placeholder)
         run: |
           # Add your linting and testing commands here
@@ -102,58 +80,9 @@ jobs:
             docker push ${{ steps.build-image.outputs.image-name }}:latest
             echo "Also pushed ${{ steps.build-image.outputs.image-name }}:latest"
           fi
-
-  update-manifest:
-    needs: [check_skip, build]
-    # Skip if the previous job determined we should skip
-    if: ${{ needs.check_skip.outputs.should_skip != 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
-    runs-on: ubuntu-latest
-    # Only run this job on pushes to main or develop, not on pull requests
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          # We need to fetch all history for all branches and tags
-          # to make sure the push below works correctly
-          fetch-depth: 0 
-          # Use a token with write permissions to push to the repo
-          token: ${{ secrets.PAT_FOR_REPO_WRITE }} # You'll need to create this Personal Access Token
-
-      - name: Set up Git Rebase and Config
-        run: |
-          git config --global rebase.autoStash true
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions-bot@users.noreply.github.com"
-
-      - name: Update Kubernetes Manifest
-        run: |
-          echo "Updating deployment with image: ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}"
-          # Important: Adjust the path to your deployment file if it's different
-          MANIFEST_FILE="k8s/deployment.yaml"
           
-          # Use sed to replace the image. This is a bit simplistic and might need adjustment
-          # if your image line is complex or there are multiple images.
-          # It looks for a line starting with "image:" and replaces the whole line.
-          # Ensure your deployment.yaml has an image field like: image: your-repo/your-image:some-tag
-          sed -i "s|image:.*|image: ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}|g" $MANIFEST_FILE
-          
-          echo "Manifest after update:"
-          cat $MANIFEST_FILE
-
-      - name: Commit and Push Manifest Changes
+      - name: Output Image Info
         run: |
-          # Important: Adjust the path to your deployment file if it's different
-          MANIFEST_FILE="k8s/deployment.yaml"
-          git add $MANIFEST_FILE
-          # Check if there are changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to commit in manifest."
-          else
-            git commit -m "Update Kubernetes manifest with image ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}} [skip ci]"
-            # Pull with rebase before pushing to avoid conflicts if the branch was updated
-            # Determine the current branch
-            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            git pull origin $CURRENT_BRANCH --rebase
-            git push origin $CURRENT_BRANCH
-            echo "Pushed manifest changes to $CURRENT_BRANCH"
-          fi
+          echo "::notice::New image built and pushed: ${{ steps.build-image.outputs.image-name }}:${{ steps.build-image.outputs.image-tag }}"
+          echo "To update your deployment manually:"
+          echo "kubectl set image deployment/learn-kube-deployment learn-kube-container=${{ steps.build-image.outputs.image-name }}:${{ steps.build-image.outputs.image-tag }}"
