@@ -3,10 +3,12 @@ name: CI - Build , Test and Push
 on:
   push:
     branches:
-      - [main, develop]
+      - main
+      - develop
   pull_request:
     branches:
-      - [main, develop]
+      - main
+      - develop
 
 jobs:
   build:
