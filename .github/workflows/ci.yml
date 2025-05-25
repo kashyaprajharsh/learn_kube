@@ -16,7 +16,28 @@ permissions:
   packages: write
 
 jobs:
+  # Skip job if commit message contains "Update Kubernetes manifest"
+  check_skip:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - name: Check if should skip
+        id: skip_check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = context.payload.head_commit?.message || '';
+            const shouldSkip = message.includes('Update Kubernetes manifest');
+            console.log(`Commit message: "${message}"`);
+            console.log(`Should skip: ${shouldSkip}`);
+            return shouldSkip;
+          result-encoding: string
+
   build:
+    needs: check_skip
+    # Skip if the previous job determined we should skip
+    if: ${{ needs.check_skip.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.build-image.outputs.image-tag }}
@@ -83,10 +104,11 @@ jobs:
           fi
 
   update-manifest:
-    needs: build # This job runs after the 'build' job successfully completes
+    needs: [check_skip, build]
+    # Skip if the previous job determined we should skip
+    if: ${{ needs.check_skip.outputs.should_skip != 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
     runs-on: ubuntu-latest
     # Only run this job on pushes to main or develop, not on pull requests
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -127,7 +149,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit in manifest."
           else
-            git commit -m "Update Kubernetes manifest with image ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}"
+            git commit -m "Update Kubernetes manifest with image ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}} [skip ci]"
             # Pull with rebase before pushing to avoid conflicts if the branch was updated
             # Determine the current branch
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
