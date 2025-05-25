@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.build-image.outputs.image-tag }}
+      image-name: ${{ steps.build-image.outputs.image-name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,7 +34,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd learn_kube
           poetry install --no-root
           
 
@@ -51,9 +51,9 @@ jobs:
           IMAGE_TAG=$(date +%Y%m%d%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)
           # Replace 'learn-kube-app' with your desired application name
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/learn-kube-app
-          docker build -t $IMAGE_NAME:$IMAGE_TAG -f learn_kube/Dockerfile .
+          docker build -t $IMAGE_NAME:$IMAGE_TAG -f Dockerfile .
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT # Output the full image name
+          echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT
           echo "Successfully built $IMAGE_NAME:$IMAGE_TAG"
 
       - name: Log in to GitHub Container Registry
@@ -102,7 +102,7 @@ jobs:
         run: |
           echo "Updating deployment with image: ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}"
           # Important: Adjust the path to your deployment file if it's different
-          MANIFEST_FILE="learn_kube/k8s/deployment.yaml"
+          MANIFEST_FILE="k8s/deployment.yaml"
           
           # Use sed to replace the image. This is a bit simplistic and might need adjustment
           # if your image line is complex or there are multiple images.
@@ -116,7 +116,7 @@ jobs:
       - name: Commit and Push Manifest Changes
         run: |
           # Important: Adjust the path to your deployment file if it's different
-          MANIFEST_FILE="learn_kube/k8s/deployment.yaml"
+          MANIFEST_FILE="k8s/deployment.yaml"
           git add $MANIFEST_FILE
           # Check if there are changes to commit
           if git diff --staged --quiet; then
