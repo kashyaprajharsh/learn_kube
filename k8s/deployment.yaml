@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: learn-kube-container
-          image: ghcr.io/kashyaprajharsh/learn-kube-app:20250525164100-91992cf
+          image: ghcr.io/kashyaprajharsh/learn-kube-app:20250525164152-cc2bffd
           imagePullPolicy: IfNotPresent # Or Never, since it's locally loaded. IfNotPresent is fine.
           ports:
             - containerPort: 8080 # The port your app listens on INSIDE the container 
