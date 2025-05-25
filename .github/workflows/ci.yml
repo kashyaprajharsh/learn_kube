@@ -81,6 +81,22 @@ jobs:
             echo "Also pushed ${{ steps.build-image.outputs.image-name }}:latest"
           fi
           
+      - name: Save image info for CD workflow
+        if: github.event_name == 'push'
+        run: |
+          echo "${{ steps.build-image.outputs.image-tag }}" > image-tag.txt
+          echo "${{ steps.build-image.outputs.image-name }}" > image-name.txt
+          
+      - name: Upload image info as artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-info
+          path: |
+            image-tag.txt
+            image-name.txt
+          retention-days: 1
+          
       - name: Output Image Info
         run: |
           echo "::notice::New image built and pushed: ${{ steps.build-image.outputs.image-name }}:${{ steps.build-image.outputs.image-tag }}"

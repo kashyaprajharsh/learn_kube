@@ -1,0 +1,75 @@
+name: CD - Deploy to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["CI - Build , Test and Push"]
+    types:
+      - completed
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: write # Needed to update the deployment manifest
+
+jobs:
+  deploy:
+    # Only run if the CI workflow was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: image-info
+          path: /tmp
+
+      - name: Read image info
+        id: image-info
+        run: |
+          if [ -f "/tmp/image-tag.txt" ] && [ -f "/tmp/image-name.txt" ]; then
+            echo "IMAGE_TAG=$(cat /tmp/image-tag.txt)" >> $GITHUB_OUTPUT
+            echo "IMAGE_NAME=$(cat /tmp/image-name.txt)" >> $GITHUB_OUTPUT
+            echo "Found image info: $(cat /tmp/image-name.txt):$(cat /tmp/image-tag.txt)"
+          else
+            echo "Error: Image info not found in artifacts"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions-bot@users.noreply.github.com"
+
+      - name: Update Kubernetes manifest
+        run: |
+          echo "Updating deployment with image: ${{ steps.image-info.outputs.IMAGE_NAME }}:${{ steps.image-info.outputs.IMAGE_TAG }}"
+          MANIFEST_FILE="k8s/deployment.yaml"
+          
+          # Use sed to update the image in the deployment file
+          sed -i "s|image: ghcr.io/${{ github.repository_owner }}/learn-kube-app:.*|image: ${{ steps.image-info.outputs.IMAGE_NAME }}:${{ steps.image-info.outputs.IMAGE_TAG }}|g" $MANIFEST_FILE
+          
+          echo "Manifest after update:"
+          cat $MANIFEST_FILE
+
+      - name: Commit and push changes
+        run: |
+          MANIFEST_FILE="k8s/deployment.yaml"
+          git add $MANIFEST_FILE
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit in manifest"
+          else
+            git commit -m "Update deployment with image ${{ steps.image-info.outputs.IMAGE_NAME }}:${{ steps.image-info.outputs.IMAGE_TAG }} [skip ci]"
+            git push
+            echo "Pushed manifest changes"
+          fi 
