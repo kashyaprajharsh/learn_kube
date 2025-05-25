@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: learn-kube-service
+spec:
+  selector:
+    app: learn-kube-app # This must match the labels on your Pods (from the Deployment)
+  ports:
+    - protocol: TCP
+      port: 80 # Port the Service will be available on INSIDE the cluster
+      targetPort: 8080 # Port your container (fastapi-app) is listening on
+      nodePort: 30007 # Requesting a specific NodePort
+  type: NodePort # Exposes the Service on each Node's IP at a static port 

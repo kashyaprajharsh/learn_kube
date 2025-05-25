@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: learn-kube-deployment
+  labels:
+    app: learn-kube-app
+spec:
+  replicas: 1 # We'll start with one copy of our application
+  selector:
+    matchLabels:
+      app: learn-kube-app # This selects the Pods managed by this Deployment
+  template:
+    metadata:
+      labels:
+        app: learn-kube-app # Pods created will have this label
+    spec:
+      containers:
+        - name: learn-kube-container
+          image: learn-kube-app:v8 # Update to the new image version
+          imagePullPolicy: IfNotPresent # Or Never, since it's locally loaded. IfNotPresent is fine.
+          ports:
+            - containerPort: 8080 # The port your app listens on INSIDE the container 
+          env:
+            - name: MODEL_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config # Name of your ConfigMap
+                  key: MODEL_NAME   # Key in the ConfigMap
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets # Name of your Secret
+                  key: GEMINI_API_KEY # Key in the Secret
+          livenessProbe:
+            httpGet:
+              path: /healthz  # Our liveness endpoint
+              port: 8080
+            initialDelaySeconds: 5 # How long to wait after the container starts before first probe
+            periodSeconds: 10    # How often to perform the probe
+            failureThreshold: 3  # How many failures before K8s considers it failed (and restarts for liveness)
+          readinessProbe:
+            httpGet:
+              path: /readyz  # Our readiness endpoint
+              port: 8080
+            initialDelaySeconds: 5 # How long to wait before first probe
+            periodSeconds: 5     # How often to perform the probe
+            failureThreshold: 3  # How many failures before K8s considers it not ready 

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnKube - AI-Powered DevOps Learning Platform</title>
+    <!-- Favicon -->
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Prism.js for code highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <!-- vis.js for mind maps -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-600 to-indigo-800 py-4 shadow-md">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="/static/img/logo.svg" alt="LearnKube Logo" class="h-10 mr-3">
+                <h1 class="text-white text-2xl font-bold">Learn<span class="text-blue-200">Kube</span></h1>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="concept">Learn Concepts</a>
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="challenge">Practice Challenges</a>
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="quiz">Take Quizzes</a>
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="mindmap">Mind Maps</a>
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="chat">Chat Assistant</a>
+                <a href="#" class="text-white hover:text-blue-200 transition" data-section="about">About</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-indigo-800 pb-4 px-4">
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="concept">Learn Concepts</a>
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="challenge">Practice Challenges</a>
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="quiz">Take Quizzes</a>
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="mindmap">Mind Maps</a>
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="chat">Chat Assistant</a>
+            <a href="#" class="block text-white py-2 hover:bg-indigo-700 px-3 rounded" data-section="about">About</a>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section id="hero" class="py-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800">Master DevOps with AI-Powered Learning</h1>
+                <p class="text-xl text-gray-600 mb-8">Learn Kubernetes, Docker, Git, ArgoCD, and more through interactive explanations, challenges, and quizzes.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="btn btn-primary btn-lg" data-section="concept">Start Learning</button>
+                    <button class="btn btn-outline-primary btn-lg" data-section="about">Learn More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-10">
+            <h2 class="text-3xl font-bold text-center mb-10 text-gray-800">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-book-open text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">Learn Concepts</h3>
+                    <p class="text-gray-600 text-center">Get AI-powered explanations of DevOps concepts with examples and analogies tailored to your needs.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-code text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">Practice Challenges</h3>
+                    <p class="text-gray-600 text-center">Tackle real-world inspired tasks and get personalized feedback to improve your skills.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-question text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-center mb-3">Take Quizzes</h3>
+                    <p class="text-gray-600 text-center">Test your knowledge with dynamically generated quizzes that adapt to your skill level.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Sections -->
+        <section id="content" class="py-8">
+            <!-- Dynamic Content Sections -->
+            <!-- Each section will be shown/hidden based on navigation -->
+
+            <!-- Concepts Section -->
+            <div id="concept-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Learn DevOps Concepts</h2>
+                    <form id="concept-form" class="mb-6">
+                        <div class="mb-3">
+                            <label for="concept-topic" class="form-label">What DevOps concept would you like to learn about?</label>
+                            <input type="text" class="form-control" id="concept-topic" placeholder="e.g., Kubernetes Pods, Docker Volumes, GitOps">
+                        </div>
+                        <div class="mb-3">
+                            <label for="proficiency-level" class="form-label">Your Proficiency Level</label>
+                            <select class="form-select" id="proficiency-level">
+                                <option value="beginner" selected>Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="concept-spinner"></span>
+                            Explain
+                        </button>
+                    </form>
+                    <div id="concept-result" class="mt-4 hidden">
+                        <h3 id="concept-name" class="text-xl font-semibold mb-2"></h3>
+                        <div class="card mb-4">
+                            <div class="card-header">Definition</div>
+                            <div class="card-body" id="concept-definition"></div>
+                        </div>
+                        <div class="card mb-4" id="concept-analogy-card">
+                            <div class="card-header">Analogy</div>
+                            <div class="card-body" id="concept-analogy"></div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header">Core Principles</div>
+                            <div class="card-body">
+                                <ul id="concept-principles" class="list-group list-group-flush"></ul>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="concept-example-card">
+                            <div class="card-header">Example Use Case</div>
+                            <div class="card-body" id="concept-example"></div>
+                        </div>
+                        <div class="card mb-4" id="concept-pitfalls-card">
+                            <div class="card-header">Common Pitfalls</div>
+                            <div class="card-body">
+                                <ul id="concept-pitfalls" class="list-group list-group-flush"></ul>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="concept-detailed-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Detailed Explanation</span>
+                                    <button class="btn btn-sm btn-outline-primary" id="toggle-details-btn">
+                                        <i class="fas fa-chevron-up"></i> <span class="toggle-text">Hide Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body" id="concept-detailed-explanation"></div>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-outline-primary me-2" id="take-quiz-btn">Take Quiz on this Topic</button>
+                            <button class="btn btn-outline-success" id="try-challenge-btn">Try a Challenge</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenges Section -->
+            <div id="challenge-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Practice with Challenges</h2>
+                    
+                    <!-- Challenges List/Generator View -->
+                    <div id="challenge-list-view">
+                        <div class="mb-3">
+                            <label class="form-label">Choose a challenge type:</label>
+                            <div class="btn-group w-100 mb-3" role="group">
+                                <button type="button" class="btn btn-outline-primary active" data-challenge-type="predefined">Predefined Challenges</button>
+                                <button type="button" class="btn btn-outline-primary" data-challenge-type="generate">Generate New Challenge</button>
+                            </div>
+                        </div>
+
+                        <!-- Predefined Challenges -->
+                        <div id="predefined-challenges" class="mb-4">
+                            <div class="list-group">
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-challenge-id="k8s_debug_pod_crashloop">
+                                    Debug Pod CrashLoopBackOff
+                                    <span class="badge bg-primary">Kubernetes</span>
+                                </button>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-challenge-id="git_merge_conflict">
+                                    Resolve Git Merge Conflict
+                                    <span class="badge bg-success">Git</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Generate New Challenge -->
+                        <div id="generate-challenge" class="mb-4 hidden">
+                            <form id="generate-challenge-form">
+                                <div class="mb-3">
+                                    <label for="challenge-topic" class="form-label">Topic</label>
+                                    <input type="text" class="form-control" id="challenge-topic" placeholder="e.g., Docker Networking, Kubernetes RBAC">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="challenge-difficulty" class="form-label">Difficulty</label>
+                                    <select class="form-select" id="challenge-difficulty">
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate" selected>Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="generate-challenge-spinner"></span>
+                                    Generate Challenge
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Challenge Detail View (both predefined and generated) -->
+                    <div id="challenge-detail-view" class="hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="back-to-challenges">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Challenges
+                            </button>
+                            <span class="badge bg-primary" id="challenge-difficulty-badge">Intermediate</span>
+                        </div>
+                        <h3 id="challenge-title" class="text-xl font-semibold mb-2"></h3>
+                        <div class="mb-4">
+                            <h4 class="h6 text-muted mb-2">Topic</h4>
+                            <p id="challenge-topic-display"></p>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header">Challenge Description</div>
+                            <div class="card-body" id="challenge-description"></div>
+                        </div>
+                        <form id="challenge-solution-form">
+                            <div class="mb-3">
+                                <label for="challenge-solution" class="form-label">Your Solution</label>
+                                <textarea class="form-control" id="challenge-solution" rows="6" placeholder="Type your solution here..."></textarea>
+                            </div>
+                            <input type="hidden" id="current-challenge-id">
+                            <input type="hidden" id="challenge-is-dynamic" value="false">
+                            <!-- Store dynamic challenge details if needed -->
+                            <input type="hidden" id="dynamic-challenge-title">
+                            <input type="hidden" id="dynamic-challenge-topic">
+                            <input type="hidden" id="dynamic-challenge-difficulty">
+                            <input type="hidden" id="dynamic-challenge-description">
+                            <input type="hidden" id="dynamic-challenge-criteria">
+                            <input type="hidden" id="dynamic-challenge-keywords">
+                            
+                            <button type="submit" class="btn btn-success">
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="submit-challenge-spinner"></span>
+                                Submit Solution
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Challenge Feedback View -->
+                    <div id="challenge-feedback-view" class="hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="back-to-challenge-detail">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Challenge
+                            </button>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">Assessment</div>
+                            <div class="card-body" id="challenge-assessment"></div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">Positive Points</div>
+                            <div class="card-body">
+                                <ul id="positive-points" class="list-group list-group-flush"></ul>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="improvement-areas-card">
+                            <div class="card-header bg-warning text-dark">Areas for Improvement</div>
+                            <div class="card-body">
+                                <ul id="improvement-areas" class="list-group list-group-flush"></ul>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="next-step-card">
+                            <div class="card-header bg-info text-white">Suggested Next Step</div>
+                            <div class="card-body" id="next-step"></div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white">Detailed Explanation</div>
+                            <div class="card-body" id="detailed-explanation"></div>
+                        </div>
+                        <div class="mt-4">
+                            <button class="btn btn-primary" id="try-another-challenge">Try Another Challenge</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Test Your Knowledge</h2>
+                    
+                    <!-- Quiz Generator -->
+                    <div id="quiz-generator-view">
+                        <form id="quiz-form" class="mb-4">
+                            <div class="mb-3">
+                                <label for="quiz-topic" class="form-label">Choose a topic for your quiz</label>
+                                <input type="text" class="form-control" id="quiz-topic" placeholder="e.g., Kubernetes Services, GitOps, Docker Compose">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="quiz-difficulty" class="form-label">Difficulty</label>
+                                    <select class="form-select" id="quiz-difficulty">
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate" selected>Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="quiz-type" class="form-label">Question Type</label>
+                                    <select class="form-select" id="quiz-type">
+                                        <option value="">Random</option>
+                                        <option value="multiple_choice">Multiple Choice</option>
+                                        <option value="true_false">True/False</option>
+                                        <option value="short_answer_explanation">Short Answer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="generate-quiz-spinner"></span>
+                                Generate Quiz
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Quiz Question View -->
+                    <div id="quiz-question-view" class="hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="back-to-quiz-generator">
+                                <i class="fas fa-arrow-left me-2"></i> New Quiz
+                            </button>
+                            <span class="badge bg-primary" id="quiz-type-badge">Multiple Choice</span>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                                <span>Question</span>
+                                <span id="quiz-topic-badge"></span>
+                            </div>
+                            <div class="card-body">
+                                <p id="quiz-question-text" class="mb-4"></p>
+                                
+                                <!-- Multiple Choice Options -->
+                                <div id="multiple-choice-options" class="hidden">
+                                    <div id="options-container" class="mb-3"></div>
+                                </div>
+                                
+                                <!-- True/False Options -->
+                                <div id="true-false-options" class="hidden">
+                                    <div class="btn-group d-flex" role="group">
+                                        <button type="button" class="btn btn-outline-success w-50" data-answer="True">True</button>
+                                        <button type="button" class="btn btn-outline-danger w-50" data-answer="False">False</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Short Answer Input -->
+                                <div id="short-answer-input" class="hidden">
+                                    <textarea class="form-control" id="short-answer-text" rows="4" placeholder="Type your answer here..."></textarea>
+                                </div>
+
+                                <button id="submit-answer" class="btn btn-primary mt-4">Submit Answer</button>
+                            </div>
+                        </div>
+
+                        <!-- Hidden fields to store question data -->
+                        <input type="hidden" id="correct-answer-id">
+                        <input type="hidden" id="quiz-answer-explanation">
+                    </div>
+
+                    <!-- Quiz Results View -->
+                    <div id="quiz-results-view" class="hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="back-to-question">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Question
+                            </button>
+                        </div>
+                        <div id="answer-result-indicator" class="mb-4 p-4 text-center rounded-lg">
+                            <!-- Will be filled with correct/incorrect message -->
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">Explanation</div>
+                            <div class="card-body" id="answer-explanation"></div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-primary" id="try-another-quiz">Try Another Question</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mind Map Section -->
+            <div id="mindmap-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">DevOps Mind Maps</h2>
+                    
+                    <!-- Mind Map Generator Form -->
+                    <div id="mindmap-generator-view">
+                        <p class="mb-4">Generate an interactive mind map to visualize DevOps concepts and their relationships.</p>
+                        <form id="mindmap-form" class="mb-4">
+                            <div class="mb-3">
+                                <label for="mindmap-topic" class="form-label">Topic</label>
+                                <input type="text" class="form-control" id="mindmap-topic" placeholder="e.g., Kubernetes Architecture, CI/CD Pipeline, GitOps">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="mindmap-depth" class="form-label">Depth</label>
+                                    <select class="form-select" id="mindmap-depth">
+                                        <option value="1">Basic (1 level)</option>
+                                        <option value="2" selected>Standard (2 levels)</option>
+                                        <option value="3">Detailed (3 levels)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="mindmap-focus" class="form-label">Focus Area (Optional)</label>
+                                    <input type="text" class="form-control" id="mindmap-focus" placeholder="e.g., Security, Networking">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="generate-mindmap-btn">
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="mindmap-spinner"></span>
+                                Generate Mind Map
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Mind Map Display -->
+                    <div id="mindmap-display-view" class="hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-sm btn-outline-secondary" id="back-to-mindmap-form">
+                                <i class="fas fa-arrow-left me-2"></i> New Mind Map
+                            </button>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary" id="zoom-in">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" id="zoom-out">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" id="reset-view">
+                                    <i class="fas fa-home"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                                <span id="mindmap-title">Mind Map</span>
+                                <button class="btn btn-sm btn-outline-light" id="fullscreen-btn">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="mindmap-container" class="mindmap-container"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4" id="node-details-card">
+                            <div class="card-header bg-info text-white">Node Details</div>
+                            <div class="card-body">
+                                <h5 id="selected-node-label">Select a node to see details</h5>
+                                <p id="selected-node-description" class="mb-0"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button class="btn btn-primary" id="export-mindmap-btn">Export as Image</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chat-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">AI Chat Assistant</h2>
+                    
+                    <!-- Chat Messages Container -->
+                    <div id="chat-messages" class="mb-4 h-[500px] overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <!-- Messages will be added here dynamically -->
+                        <div class="welcome-message text-center text-gray-600 py-8">
+                            <i class="fas fa-robot text-4xl mb-3 text-blue-500"></i>
+                            <h3 class="text-xl font-semibold mb-2">Welcome to LearnKube Chat!</h3>
+                            <p>Ask me anything about DevOps, Kubernetes, Docker, or any other tech topics.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input Form -->
+                    <form id="chat-form" class="flex gap-2">
+                        <div class="flex-grow relative">
+                            <textarea 
+                                id="chat-input" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                rows="2"
+                                placeholder="Type your message here..."
+                            ></textarea>
+                            <div class="absolute bottom-2 right-2 text-gray-400 text-sm" id="chat-input-counter">0/500</div>
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 h-[66px]"
+                            id="chat-submit-btn"
+                        >
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="chat-spinner"></span>
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div id="about-section" class="content-section hidden">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">About LearnKube</h2>
+                    <p class="mb-4">LearnKube is an AI-powered educational platform designed to help users learn DevOps concepts and tools like Kubernetes, Docker, Git, ArgoCD, and more.</p>
+                    <div class="card mb-4">
+                        <div class="card-header">Platform Features</div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i> 
+                                    AI-powered explanations of complex DevOps concepts
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i> 
+                                    Interactive challenges with personalized feedback
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i> 
+                                    Dynamic quizzes that adapt to your knowledge level
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="fas fa-check text-success me-2"></i> 
+                                    Learning content generated uniquely for each user
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p>This platform was built with FastAPI backend and a modern UI with Tailwind CSS and Bootstrap.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">Learn<span class="text-blue-400">Kube</span></h3>
+                    <p class="text-gray-400">AI-Powered DevOps Learning</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 my-4"></div>
+            <div class="text-center text-gray-400">
+                <p>&copy; 2023 LearnKube. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Prism.js for code highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <!-- FileSaver.js for exporting mind maps -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html> 

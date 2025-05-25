@@ -1,0 +1,127 @@
+name: CI - Build , Test and Push
+
+on:
+  push:
+    branches:
+      - [main, develop]
+  pull_request:
+    branches:
+      - [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.build-image.outputs.image-tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        uses: python-poetry/actions-poetry@v2
+        with:
+          install-command: "poetry install --no-root"
+          
+
+      - name: Install dependencies
+        run: |
+        
+
+      - name: Lint and Test (Placeholder)
+        run: |
+          # Add your linting and testing commands here
+          # For example:
+          # poetry run ruff check .
+          # poetry run pytest
+          echo "Linting and testing step (to be implemented)"
+
+      - name: Build Docker image
+        id: build-image
+        run: |
+          IMAGE_TAG=$(date +%Y%m%d%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)
+          # Replace 'learn-kube-app' with your desired application name
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/learn-kube-app
+          docker build -t $IMAGE_NAME:$IMAGE_TAG -f learn_kube/Dockerfile .
+          echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT # Output the full image name
+          echo "Successfully built $IMAGE_NAME:$IMAGE_TAG"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GHCR
+        run: |
+          IMAGE_NAME_WITH_TAG="${{ steps.build-image.outputs.image-name }}:${{ steps.build-image.outputs.image-tag }}"
+          echo "Pushing $IMAGE_NAME_WITH_TAG"
+          docker push $IMAGE_NAME_WITH_TAG
+          
+          # Optionally, push a 'latest' tag or a tag based on the branch
+          # For example, if on main branch, tag as latest
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            docker tag $IMAGE_NAME_WITH_TAG ${{ steps.build-image.outputs.image-name }}:latest
+            docker push ${{ steps.build-image.outputs.image-name }}:latest
+            echo "Also pushed ${{ steps.build-image.outputs.image-name }}:latest"
+          fi
+
+  update-manifest:
+    needs: build # This job runs after the 'build' job successfully completes
+    runs-on: ubuntu-latest
+    # Only run this job on pushes to main or develop, not on pull requests
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # We need to fetch all history for all branches and tags
+          # to make sure the push below works correctly
+          fetch-depth: 0 
+          # Use a token with write permissions to push to the repo
+          token: ${{ secrets.PAT_FOR_REPO_WRITE }} # You'll need to create this Personal Access Token
+
+      - name: Set up Git Rebase and Config
+        run: |
+          git config --global rebase.autoStash true
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@users.noreply.github.com"
+
+      - name: Update Kubernetes Manifest
+        run: |
+          echo "Updating deployment with image: ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}"
+          # Important: Adjust the path to your deployment file if it's different
+          MANIFEST_FILE="learn_kube/k8s/deployment.yaml"
+          
+          # Use sed to replace the image. This is a bit simplistic and might need adjustment
+          # if your image line is complex or there are multiple images.
+          # It looks for a line starting with "image:" and replaces the whole line.
+          # Ensure your deployment.yaml has an image field like: image: your-repo/your-image:some-tag
+          sed -i "s|image:.*|image: ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}|g" $MANIFEST_FILE
+          
+          echo "Manifest after update:"
+          cat $MANIFEST_FILE
+
+      - name: Commit and Push Manifest Changes
+        run: |
+          # Important: Adjust the path to your deployment file if it's different
+          MANIFEST_FILE="learn_kube/k8s/deployment.yaml"
+          git add $MANIFEST_FILE
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit in manifest."
+          else
+            git commit -m "Update Kubernetes manifest with image ${{needs.build.outputs.image-name}}:${{needs.build.outputs.image-tag}}"
+            # Pull with rebase before pushing to avoid conflicts if the branch was updated
+            # Determine the current branch
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            git pull origin $CURRENT_BRANCH --rebase
+            git push origin $CURRENT_BRANCH
+            echo "Pushed manifest changes to $CURRENT_BRANCH"
+          fi
